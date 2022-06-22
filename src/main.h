@@ -38,7 +38,6 @@ extern  parking_t ListCar[10];
 
 extern  QueueHandle_t xQueue;
 extern  TaskHandle_t QuetTheHandle;
-// extern TaskHandle_t NhanHandle;
 extern  TaskHandle_t VanHanhHandle;
 
 extern  long double timeout;

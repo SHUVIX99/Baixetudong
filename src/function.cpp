@@ -97,6 +97,24 @@ void SetX_Down()
 }
 int Sort_Car(int Arr_Send[])
 {
+  //  for(int i=0;i<1;i++)
+  // {
+  // //     debug.print("vitri");
+  // //     debug.println(i);
+  // //     debug.println(ListCar[i].flag.parkingStatus);
+  // //     for(int j=0;j<4;j++)
+  // //     {
+  // //       debug.print(ListCar[i].RID[j]);
+  // //       debug.print(",");
+  // //     } 
+  // //     debug.println();
+  // //      for(int j=0;j<4;j++)
+  // //     {
+  // //       debug.print(Arr_Send[j]);
+  // //       debug.print(",");
+  // //     }   
+  // //     debug.println();
+  // // }
     int i=0;
     for(int j=9;j>=0;j--)
         {
@@ -130,8 +148,9 @@ void LoadData()
           timeout = millis() + 20;
         }
       }
-      if(data.indexOf("[STT]") != -1) SlotStatusSerialHandle(data.c_str()); 
-      else if(data.indexOf("[RFID]") != -1) SloRFIDSerialHandle(data.c_str());
+      
+      if(data.indexOf("[RFID]") != -1) SloRFIDSerialHandle(data.c_str());
+      // else if(data.indexOf("[STT]") != -1) SlotStatusSerialHandle(data.c_str()); 
       else if(data.indexOf("[END]") != -1) {Serial.print("END\n");break;}
       else {
         debug.println("data false");
@@ -140,41 +159,40 @@ void LoadData()
     }  
   }
 }
-void SlotStatusSerialHandle(const char *s) {
-  
-  debug.print("Xu ly STT: ");
-  debug.println(s);
-  Serial.print("OK\n");
-  char data_arr[10];
-  char *u8_ptr;  // 
-  u8_ptr = strstr(s, "[STT]["); // cai nay no tra ve index dau tien nha
-
-  if(u8_ptr != nullptr) u8_ptr += 5;  // 
-  debug.println((String)u8_ptr);
-  
-  for(int i = 0; i < sizeof(u8_ptr); i++) {
-    if(i%2) data_arr[i/2] = (uint8_t)(u8_ptr[i] - '0'); 
-  }
-  for(int i = 0; i < 10; i++) {
-    ListCar[i].flag.parkingStatus= (data_arr[i])? 1 : 0;
-  }
-}
-void SloRFIDSerialHandle(const char *s) {
+void SloRFIDSerialHandle(const char *s)
+{
   String datatemp="000";
   Serial.println("OK2\n");
-  debug.print("Xu ly RFID: ");
-  debug.println(s);
-  
-  int Sl=s[1]-48;
+  ListCar[s[6]-48].flag.parkingStatus=1;
   for(int i = 0; i < 4; i++)
   {
-    datatemp[0]=s[i*4+3];
-    datatemp[1]=s[i*4+4];
-    datatemp[2]=s[i*4+5];
+    datatemp[0]=s[i*4+8];
+    datatemp[1]=s[i*4+9];
+    datatemp[2]=s[i*4+10];
     int dat=datatemp.toInt();
-    ListCar[Sl].RID[i]=dat;
-    debug.println(dat);
-    
+    ListCar[s[6]-48].RID[i]=dat;
+    // debug.println(dat);
   }
 }
+
+// void SlotStatusSerialHandle(const char *s) {
+  
+//   debug.print("Xu ly STT: ");
+//   debug.println(s);
+//   Serial.print("OK\n");
+//   char data_arr[10];
+//   char *u8_ptr;  // 
+//   u8_ptr = strstr(s, "[STT]["); // cai nay no tra ve index dau tien nha
+
+//   if(u8_ptr != nullptr) u8_ptr += 5;  // 
+//   debug.println((String)u8_ptr);
+  
+//   for(int i = 0; i < sizeof(u8_ptr); i++) {
+//     if(i%2) data_arr[i/2] = (uint8_t)(u8_ptr[i] - '0'); 
+//   }
+//   for(int i = 0; i < 10; i++) {
+//     ListCar[i].flag.parkingStatus= (data_arr[i])? 1 : 0;
+//   }
+// }
+
 

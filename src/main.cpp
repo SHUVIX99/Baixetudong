@@ -3,7 +3,7 @@
 SoftwareSerial debug(2,3);
 MFRC522 mfrc522(SS_PIN, RST_PIN);
 parking_t ListCar[10];
-
+// LiquidCrystal_I2C lcd(0x27,16,4);  
 QueueHandle_t xQueue;
 TaskHandle_t QuetTheHandle;
 TaskHandle_t VanHanhHandle;
@@ -13,6 +13,7 @@ static void VanHanh( void *pvParameters );
 
 
 void setup() {
+      // lcd.init();                     
       Serial.begin(9600);   
       debug.begin(9600);
       SPI.begin();    
@@ -26,13 +27,15 @@ void setup() {
       Serial.print("END\n");
       xTaskCreate( QuetThe, "QuetThe", 110,NULL, 1,&QuetTheHandle );
       xTaskCreate( VanHanh, "VanHanh", 190,NULL, 1,&VanHanhHandle );
+
       vTaskStartScheduler();
+      
 }
 
 static void QuetThe( void *pvParameters )
 {
   int Arr_Send[5]={0,0,0,0,0};        //The 4 values of this array contain the value of the RFID Card
-  pinMode(IR_IN_OUT,INPUT_PULLUP);    // Infrared sensor
+  pinMode(IR_IN_OUT,INPUT);    // Infrared sensor
   char *u8_ptr;  
   for( ;; )
   { 
@@ -76,7 +79,6 @@ static void QuetThe( void *pvParameters )
     if( Arr_Send[0]==0 &&  Arr_Send[1]==0 &&  Arr_Send[2]==0 &&  Arr_Send[3]==0 ) // Check if you have received your new card
     {
       debug.println("Chua nhan duoc the");
-      delay(1000); 
     }
     if (!mfrc522.PICC_IsNewCardPresent()) continue; 	// Neu khong phat hien co the moi thi bo qua, khong lam phan con lai, chay ve dau ham for(;;), luu y, la the moi, the cu da doc chua bo ra khoi dau doc thi se khong tinh.
 		if (!mfrc522.PICC_ReadCardSerial()) continue; 	// Neu khong doc duoc id the thi cung bo qua het phan con lai, quay ve dau ham for(;;) 
@@ -98,6 +100,8 @@ static void QuetThe( void *pvParameters )
     {
     
       Arr_Send[4]=Sort_Car(Arr_Send); // Sort Car Return location
+      // debug.print("Vi tri thuc hien");
+      // debug.println(Arr_Send[4]);
 
       if(Arr_Send[4]==0)
         {
@@ -112,15 +116,14 @@ static void QuetThe( void *pvParameters )
                 {
                   // Serial.println( "Could not send to the queue.\r\n" );
                 }
-              //  vTaskPrioritySet(VanHanhHandle,2);
             }
-          else   debug.println("Vị trí nhập đang trống");  
+          else   debug.println("Vi tri Nhap Dang Trong");  
         }
       else
         {
           if(digitalRead(IR_IN_OUT)==LOW)
             {
-              debug.println("Vị trí xuất đang đầy");
+              debug.println("Vi Tri Xuat Da Day");
             }
           else
             {
@@ -149,7 +152,6 @@ static void VanHanh( void *pvParameters )
 
   for(;;)
   {
-    debug.println("Task2 nè \r");
     if( xQueueReceive( xQueue, &Arr_Receive,portMAX_DELAY) == pdPASS )
     {
       while(true) // send location to My App until "OK1" signal is received through Uart communication from My APP
@@ -263,6 +265,7 @@ static void VanHanh( void *pvParameters )
       //       //LCD bao cao bai do da day
       //     }
         //code A4988
+        
         if(A4988==1) 
         {
             digitalWrite(EX,LOW);
@@ -298,9 +301,8 @@ static void VanHanh( void *pvParameters )
             // debug.println("Xuat Xe hoan tat");
             digitalWrite(EX,HIGH);
             digitalWrite(EZ,HIGH); 
-
         }
-      int i=3;
+      int i=2;
       while(i)
         {
             i--;
